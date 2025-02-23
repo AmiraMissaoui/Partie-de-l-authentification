@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Employé</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"> <!-- Bootstrap pour une mise en page réactive -->
+  <link rel="stylesheet" href="styles.css"> <!-- Votre propre feuille de style -->
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f8f9fa;
+    }
+    #sidebar {
+      width: 250px;
+      height: 100vh;
+      background-color: #343a40;
+      position: fixed;
+      top: 0;
+      left: 0;
+      padding-top: 30px;
+      color: white;
+    }
+    #sidebar h2 {
+      color: #fff;
+      padding: 0 20px;
+      font-size: 1.5rem;
+    }
+    #sidebar ul {
+      list-style-type: none;
+      padding-left: 0;
+    }
+    #sidebar ul li a {
+      color: #ddd;
+      text-decoration: none;
+      display: block;
+      padding: 10px 20px;
+      font-size: 1.1rem;
+    }
+    #sidebar ul li a:hover {
+      background-color: #495057;
+      color: #fff;
+    }
+    #main-content {
+      margin-left: 250px;
+      padding: 30px;
+    }
+    .stat-card {
+      background-color: #007bff;
+      color: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+    .stat-card h3 {
+      font-size: 1.5rem;
+    }
+    .stat-card p {
+      font-size: 2rem;
+      font-weight: bold;
+    }
+    .card {
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+    .card-header {
+      background-color: #343a40;
+      color: white;
+      font-size: 1.2rem;
+      border-radius: 10px 10px 0 0;
+    }
+    .card-body {
+      padding: 20px;
+    }
+    .btn-primary {
+      background-color: #007bff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      font-size: 1rem;
+    }
+    .btn-primary:hover {
+      background-color: #0056b3;
+    }
+    table th, table td {
+      padding: 12px;
+      text-align: left;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    table, th, td {
+      border: 1px solid #ddd;
+    }
+    table th {
+      background-color: #f8f9fa;
+    }
+    .actions a {
+      margin-right: 10px;
+    }
+  </style>
+</head>
+<body>
+<!-- Barre de navigation latérale -->
+<div id="sidebar">
+  <h2>Dashboard Employé</h2>
+  <ul>
+    <li><a href="/employee/profile">Mon Profil</a></li>
+    <li><a href="/employee/trainings">Mes Formations</a></li>
+    <li><a href="/employee/requests">Mes Demandes</a></li>
+    <li><a href="/employee/settings">Paramètres</a></li>
+  </ul>
+</div>
+
+<!-- Contenu principal -->
+<div id="main-content">
+  <h1 class="mb-4">Bienvenue, [Nom de l'employé]</h1>
+
+  <!-- Notifications -->
+  <div class="alert alert-info" role="alert">
+    Vous avez une demande de formation en attente de validation.
+  </div>
+
+  <!-- Statistiques personnelles -->
+  <div class="row mb-4">
+    <div class="col-md-4">
+      <div class="stat-card">
+        <h3>Formations Terminées</h3>
+        <p th:text="${completedTrainingsCount}">0</p> <!-- Nombre de formations terminées -->
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="stat-card">
+        <h3>Formations en Attente</h3>
+        <p th:text="${pendingTrainingsCount}">0</p> <!-- Nombre de formations en attente -->
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="stat-card">
+        <h3>Formations À Venir</h3>
+        <p th:text="${upcomingTrainingsCount}">0</p> <!-- Nombre de formations à venir -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Mes demandes de formation -->
+  <section id="training-requests" class="mb-4">
+    <div class="card">
+      <div class="card-header">Mes Demandes de Formation</div>
+      <div class="card-body">
+        <a href="/employee/request/form" class="btn btn-primary mb-3">Faire une Demande de Formation</a>
+        <table>
+          <thead>
+          <tr>
+            <th>Date</th>
+            <th>Formation</th>
+            <th>État</th>
+            <th>Actions</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr th:each="request : ${trainingRequests}">
+            <td th:text="${request.date}"></td>
+            <td th:text="${request.formationName}"></td>
+            <td th:text="${request.status}"></td>
+            <td class="actions">
+              <a th:href="@{/employee/request/{id}/view(id=${request.id})}" class="btn btn-info btn-sm">Voir</a>
+              <a th:href="@{/employee/request/{id}/edit(id=${request.id})}" class="btn btn-secondary btn-sm">Modifier</a>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- Mes Formations -->
+  <section id="my-trainings" class="mb-4">
+    <div class="card">
+      <div class="card-header">Mes Formations</div>
+      <div class="card-body">
+        <table>
+          <thead>
+          <tr>
+            <th>Formation</th>
+            <th>Date</th>
+            <th>État</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr th:each="training : ${trainings}">
+            <td th:text="${training.name}"></td>
+            <td th:text="${training.date}"></td>
+            <td th:text="${training.status}"></td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- Mon Profil -->
+  <section id="profile">
+    <div class="card">
+      <div class="card-header">Mon Profil</div>
+      <div class="card-body">
+        <ul>
+          <li><strong>Nom:</strong> [Nom de l'employé]</li>
+          <li><strong>Email:</strong> [Email de l'employé]</li>
+          <li><strong>Rôle:</strong> [Rôle de l'employé]</li>
+        </ul>
+        <a href="/employee/profile/edit" class="btn btn-primary">Modifier mon profil</a>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
